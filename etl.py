@@ -58,7 +58,7 @@ def process_song_data(spark, input_data, output_data):
                      song_data_df.title,
                      song_data_df.artist_id,
                      song_data_df.duration,
-                     song_data_df.year).dropDuplicates()
+                     song_data_df.year).dropDuplicates('song_id')
 
     # write songs table to parquet files partitioned by year and artist
     songs_table.repartition("year", "artist_id") \
@@ -72,7 +72,7 @@ def process_song_data(spark, input_data, output_data):
                 song_data_df.artist_location.alias("location"),
                 song_data_df.artist_latitude.alias("latitude"),
                 song_data_df.artist_longitude.alias("longitude")) \
-        .dropDuplicates()
+        .dropDuplicates('artist_id')
 
     # write artists table to parquet files
     artists_table.write.parquet(output_data + "artists.parquet",
@@ -101,7 +101,7 @@ def process_log_data(spark, input_data, output_data):
                 log_data_df.lastName.alias("last_name"),
                 log_data_df.gender,
                 log_data_df.level) \
-        .dropDuplicates()
+        .dropDuplicates('user_id')
 
     users_table.write.parquet(output_data + "users.parquet", mode="overwrite")
 
@@ -126,7 +126,8 @@ def process_log_data(spark, input_data, output_data):
         .withColumn("month", month(log_data_df.timestamp)) \
         .withColumn("year", year(log_data_df.timestamp)) \
         .withColumn("weekday", dayofweek(log_data_df.timestamp)) \
-        .withColumn("start_time", log_data_df.timestamp)
+        .withColumn("start_time", log_data_df.timestamp) \
+        .dropDuplicates('start_time')
 
     time_table.repartition("year", "month") \
         .write.partitionBy("year", "month") \
