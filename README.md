@@ -32,7 +32,7 @@ Prerequisites: You must have access to a Spark cluster with the following requir
 }
 ```
 
-1. Run `etl.py`.
+4. Run `etl.py`.
 
 ```bash
   spark-submit etl.py
